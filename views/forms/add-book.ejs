@@ -1,0 +1,81 @@
+<%- include('partials/header') %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Book Form</title>
+    <!-- Bootstrap CSS (optional, for styling) -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* Optional: You can add your CSS styles here */
+        .col-container {
+            margin-top: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-6 col-md-6 offset-sm-3">
+            <div style="background-color: aliceblue; padding: 10px;">
+                <h2>Add Book</h2>
+            </div>
+            <form action="/books" method="post" style="background-color: white; padding: 20px; border: 1px solid #ccc;">
+                <div class="form-group">
+                    <label for="BookName">Book Name:</label>
+                    <input type="text" name="BookName" class="form-control" id="BookName" required>
+                </div>
+                <div class="form-group">
+                    <label for="AuthorName">Author Name:</label>
+                    <input type="text" name="AuthorName" class="form-control" id="AuthorName" required>
+                </div>
+                <div class="form-group">
+                    <label for="Genre">Book Genre:</label>
+                    <input type="text" name="Genre" class="form-control" id="Genre" required>
+                </div>
+                <div class="form-group">
+                    <label for="PublishYear">Book Published Year:</label>
+                    <input type="text" name="PublishYear" class="form-control" id="PublishYear" required>
+                </div>
+                <button id="addbookbutton" type="submit" class="btn">Add Book</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Optional: Bootstrap JS (for form validation, etc.) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>

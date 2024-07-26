@@ -1,0 +1,86 @@
+/* Global styles for all pages */
+
+/* Body and general layout */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    padding: 20px; /* Added padding for body */
+    background-image: url("https://wallpapers.com/images/hd/library-background-hgd4xlhw1tk49yyf.jpg");
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    margin-top: 20px; /* Moved margin-top here */
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+/* Book item styling */
+.book-item {
+    width: calc(33.33% - 20px); /* Three columns, adjust as needed */
+    margin: 10px;
+    padding: 15px;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+    .book-item {
+        width: calc(50% - 20px); /* Two columns on smaller screens */
+    }
+}
+
+@media (max-width: 576px) {
+    .book-item {
+        width: 100%; /* One column on mobile */
+    }
+}
+
+/* Additional specific styles */
+.book-item {
+    padding: 3px; /* Ensure consistent padding */
+    text-align: left; /* Adjust alignment if needed */
+    margin-bottom: 5px; /* Ensure consistent margin */
+    background-color: aliceblue; /* Ensure consistent background color */
+}
+
+form {
+    background-color: aliceblue; /* Ensure form background color */
+    padding: 5px; /* Ensure consistent padding */
+}
+
+.btn-group form {
+    display: inline-block; /* Adjust form display */
+    margin-right: 10px; /* Ensure margin between forms */
+}
+
+/* Table styles */
+.books-table {
+    width: 100%;
+    border-collapse: collapse; /* Ensure table borders collapse */
+    margin-top: 20px; /* Add margin to separate from other content */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add box shadow for depth */
+}
+
+.books-table th,
+.books-table td {
+    border: 1px solid #ccc; /* Ensure consistent table cell borders */
+    padding: 10px; /* Increased padding for better spacing */
+    text-align: center; /* Center align text in table cells */
+}
+
+/* Flexbox and spacing adjustments */
+.action-buttons {
+    display: flex;
+    gap: 5px; /* Adjust spacing between buttons */
+}
+
+.comments-list {
+    margin-top: 20px; /* Ensure margin for comments list */
+}

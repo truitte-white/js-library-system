@@ -1,0 +1,58 @@
+<%- include('partials/header') %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RF-SMART Library Book System</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/public/style.css">
+    <style>
+        body {
+            background-color: #f0faff; /* Light blue background */
+            color: #333; /* Dark text color */
+            padding: 20px; /* Add padding to body for spacing */
+        }
+        h2.home-title {
+            background-color: #007bff; /* Blue background for title */
+            color: #fff; /* White text color */
+            padding: 10px; /* Padding inside title */
+            border-radius: 8px; /* Rounded corners */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Shadow for depth */
+            margin-bottom: 20px; /* Space between title and content */
+        }
+        .row {
+            margin-bottom: 20px; /* Space between rows */
+        }
+        .list-group {
+            margin-top: 10px; /* Space above list items */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Include the header partial -->
+    <%- include('header') %>
+
+    <div class="row">
+        <div class="col-md-6">
+            <h2 class="home-title">Top 5 Longest Checked-Out Books</h2>
+            <ul id="longest-checked-out" class="list-group">
+                <!-- List items will be dynamically added here -->
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <h2 class="home-title">Latest Comments</h2>
+            <ul id="latest-comments" class="list-group comments-list">
+                <!-- List items will be dynamically added here -->
+            </ul>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>
