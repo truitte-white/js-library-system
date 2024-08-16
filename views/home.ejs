@@ -1,0 +1,85 @@
+<%- include('header') %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RF-SMART Library Book System</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/public/style.css">
+    <style>
+        body {
+            background-color: #f0faff; /* Light blue background */
+            color: #333; /* Dark text color */
+            padding: 20px; /* Add padding to body for spacing */
+        }
+        .section-title {
+            background-color: #007bff; /* Blue background for titles */
+            color: #fff; /* White text color */
+            padding: 10px; /* Padding inside titles */
+            border-radius: 8px; /* Rounded corners */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Shadow for depth */
+            margin-bottom: 20px; /* Space between title and content */
+        }
+        .list-group {
+            margin-top: 10px; /* Space above list items */
+        }
+        .content-card {
+            background-color: #fff; /* White background for content */
+            border-radius: 8px; /* Rounded corners */
+            box-shadow: 0 0 10px rgba(0,0,0,0.1); /* Shadow for depth */
+            padding: 20px; /* Padding inside content */
+            margin-bottom: 20px; /* Space between sections */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="content-card">
+                    <h2 class="section-title">Top 5 Longest Checked-Out Books</h2>
+                    <ul id="longest-checked-out" class="list-group">
+                        <% longestCheckedOutList.forEach(item => { %>
+                            <li class="list-group-item">
+                                <strong>Book ID:</strong> <%= item.Book.BookId %><br>
+                                <strong>Book:</strong> <%= item.Book.BookName %> <strong>By Author:</strong> <%= item.Book.AuthorName %><br>
+                                <strong>Checked Out By:</strong> <%= item.User.FirstName %> <%= item.User.LastName %><br>
+                                <strong>Total Days Checked Out:</strong> <%= item.TotalDays ? item.TotalDays.toFixed(1) : 'N/A' %>
+                            </li>
+                        <% }) %>
+                    </ul>
+                    
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="content-card">
+                    <h2 class="section-title">Latest Comments</h2>
+                    <ul id="latest-comments" class="list-group comments-list">
+                        <% latestCommentsList.forEach(comment => { %>
+                            <li class="list-group-item">
+                                <strong>Comment ID:</strong> <%= comment.CommentId %><br>
+                                <strong>Title:</strong> <%= comment.CommentTitle %><br>
+                                <strong>Text:</strong> <%= comment.CommentText %><br>
+                                <strong>Book Title:</strong> <%= comment.Book.BookName %><br>
+                                <strong>Book Author:</strong> <%= comment.Book.AuthorName %><br>
+                                <strong>Book ID:</strong> <%= comment.Book.BookId %><br>
+                                <strong>Commented by:</strong> <%= comment.User.FirstName %> <%= comment.User.LastName %><br>
+                                <strong>Created Date:</strong> <%= new Date(comment.CreatedDate).toLocaleString() %>
+                            </li>
+                        <% }) %>
+                    </ul>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>

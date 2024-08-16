@@ -1,0 +1,248 @@
+<%- include('header') %>
+
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Books List</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/public/style.css">
+        <style>
+            body {
+                background-color: #f0faff;
+                color: #333;
+                padding: 20px;
+            }
+
+            h1.books-title {
+                background-color: #007bff;
+                color: #fff;
+                padding: 10px;
+                border-radius: 8px;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                margin-bottom: 20px;
+            }
+
+            .books-table {
+                background-color: #fff;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                padding: 20px;
+                margin-top: 20px;
+            }
+
+            .books-table th,
+            .books-table td {
+                padding: 10px;
+                text-align: center;
+                /* Center-align text in table cells */
+            }
+
+            .action-buttons {
+                display: flex;
+                justify-content: center;
+                /* Center buttons horizontally */
+                gap: 10px;
+                /* Space between buttons */
+                white-space: nowrap;
+            }
+
+            /* Base button styling */
+            .btn {
+                display: inline-block;
+                padding: 10px 20px;
+                font-size: 14px;
+                /* Standardize font size */
+                font-weight: bold;
+                text-align: center;
+                border-radius: 4px;
+                border: none;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+                width: 130px;
+                /* Ensure all buttons are the same width */
+                height: 40px;
+                /* Ensure all buttons are the same height */
+                line-height: 1.5;
+                /* Center text vertically */
+                box-sizing: border-box;
+                /* Include padding and border in element's total width and height */
+            }
+
+            /* Specific button colors */
+            .btn-checkout {
+                background-color: #17a2b8;
+                /* Teal */
+                color: #fff;
+            }
+
+            .btn-checkout:hover {
+                background-color: #138496;
+                /* Darker Teal */
+            }
+
+            .btn-comment {
+                background-color: #a7b11f;
+                /* Base Comment Color */
+                color: #fff;
+            }
+
+            .btn-comment:hover {
+                background-color: #8a9a5b;
+                /* Lighter shade of base color */
+            }
+
+            .btn-update {
+                background-color: #6c757d;
+                /* Gray */
+                color: #fff;
+            }
+
+            .btn-update:hover {
+                background-color: #5a6268;
+                /* Darker Gray */
+            }
+
+            .btn:hover,
+            .btn:focus {
+                outline: none;
+                box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);
+            }
+        </style>
+
+
+
+    </head>
+
+    <body>
+        <h1 class="books-title">Books List</h1>
+        <table class="books-table">
+            <thead>
+                <tr>
+                    <th>Book ID</th>
+                    <th>Book Title</th>
+                    <th>Author</th>
+                    <th>Genre</th>
+                    <th>Year Published</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% books.forEach(book=> { %>
+                    <tr>
+                        <td>
+                            <%= book.BookId %>
+                        </td>
+                        <td>
+                            <%= book.BookName %>
+                        </td>
+                        <td>
+                            <%= book.AuthorName %>
+                        </td>
+                        <td>
+                            <%= book.Genre %>
+                        </td>
+                        <td>
+                            <%= book.PublishYear %>
+                        </td>
+                        <td>
+                            <%= getStatusString(book.Status) %>
+                        </td>
+                        <td class="action-buttons">
+                            <form class="borrow-form" method="post">
+                                <input type="hidden" name="bookId" value="<%= book.BookId %>">
+                                <input type="hidden" name="userEmail" value="<%= userEmail %>">
+                                <input type="hidden" name="userFirstName" value="<%= userFirstName %>">
+                                <input type="hidden" name="userLastName" value="<%= userLastName %>">
+                                <input type="hidden" name="userPassword" value="<%= userPassword %>">
+                                <button type="submit" class="btn btn-checkout">Check Out</button>
+                                <button type="button" class="btn btn-comment add-comment-btn"
+                                    data-book-id="<%= book.BookId %>">Add Comment</button>
+                                <button type="button" class="btn btn-update update-status-btn"
+                                    data-book-id="<%= book.BookId %>">Update Status</button>
+                            </form>
+                        </td>
+
+                    </tr>
+                    <% }); %>
+            </tbody>
+
+        </table>
+
+        <!-- Scripts -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                document.querySelectorAll('.borrow-form').forEach(form => {
+                    form.addEventListener('submit', function (event) {
+                        event.preventDefault();
+
+                        const formData = new FormData(event.target);
+                        const bookId = formData.get('bookId');
+                        const userId = '<%= userId %>';  // Ensure this is properly set in EJS
+
+                        const data = {
+                            BookId: parseInt(bookId, 10),
+                            UserId: parseInt(userId, 10)
+                        };
+
+
+                        console.log('Data to be sent:', data);
+                        console.log('Data type of BookId:', typeof data.BookId);
+                        console.log('Data type of UserId:', typeof data.UserId);
+
+                        fetch('/rfs-library/borrower/borrow-book', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(data)
+                        })
+                            .then(response => response.json())
+                            .then(result => {
+                                if (result.success) {
+                                    console.log(result.message);
+                                    window.location.href = '/rfs-library/books';
+                                } else {
+                                    console.error('Error:', result.message);
+                                    alert(result.message);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error borrowing book:', error);
+                                alert('There was an error borrowing the book. Please try again.');
+                            });
+                    });
+                });
+
+                // Handle Add Comment button
+                document.querySelectorAll('.add-comment-btn').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const bookId = this.getAttribute('data-book-id');
+                        const userId = '<%= userId %>';
+                        window.location.href = `/rfs-library/comments/add-comment?bookId=${bookId}&userId=${userId}`;
+                    });
+                });
+
+                // Handle Update Status button
+                document.querySelectorAll('.update-status-btn').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const bookId = this.getAttribute('data-book-id');
+
+
+                        // Redirect to the edit-book page
+                        window.location.href = `/rfs-library/books/${bookId}/edit-status`;
+
+                        // Optionally, you can also pass the new status as a query parameter:
+
+                    });
+                });
+            });
+        </script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    </body>
+
+    </html>

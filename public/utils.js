@@ -18,15 +18,7 @@ function getStatusString(status) {
 
 const returnBook = async (userId, bookId) => {
   try {
-    await axios.put(`${API_BASE_URL}/borrower/${userId}/borrowed-books/${bookId}`, {
-      active: false,
-      returnDate: new Date()
-    });
-
-    await axios.put(`${API_BASE_URL}/books/${bookId}`, {
-      status: 'Available'
-    });
-
+    await axios.put(`${API_BASE_URL}/borrower/${userId}/borrowed-books/${bookId}`);
     return { success: true };
   } catch (error) {
     console.error('Error returning book:', error);
@@ -34,14 +26,14 @@ const returnBook = async (userId, bookId) => {
   }
 };
 
-const addComment = async (userId, bookId, comment) => {
+const addComment = async (userId, bookId, commentTitle, commentText) => {
   try {
-    await axios.post(`${API_BASE_URL}/comments`, {
-      userId: userId,
-      bookId: bookId,
-      content: comment
+    await axios.post(`${API_BASE_URL}/comments/add-comment`, {
+      userId,
+      bookId,
+      commentTitle,
+      commentText
     });
-
     return { success: true };
   } catch (error) {
     console.error('Error adding comment:', error);

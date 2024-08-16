@@ -1,0 +1,149 @@
+<%- include('header') %>
+
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Edit Book Status</title>
+        <!-- Include Bootstrap CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <!-- Include custom CSS -->
+        <link rel="stylesheet" href="/public/style.css">
+        <style>
+            body {
+                background-color: #f0faff;
+                color: #333;
+                padding: 20px;
+            }
+
+            .heading-bar {
+                background-color: #007bff;
+                color: #fff;
+                padding: 10px;
+                border-radius: 8px;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                margin-bottom: 20px;
+            }
+
+            .form-container {
+                background-color: #fff;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                padding: 20px;
+                margin-top: 20px;
+            }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+            }
+
+            .btn {
+                background-color: #007bff;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+            .btn:hover {
+                background-color: #0056b3;
+            }
+
+            .form-select {
+                width: 100%;
+                padding: 8px;
+                font-size: 16px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                box-sizing: border-box;
+            }
+
+            #statusMessage {
+                margin-top: 10px;
+                color: #d9534f;
+                /* Bootstrap danger color */
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="container">
+            <div class="heading-bar">
+                <h1>Edit Book Status</h1>
+            </div>
+            <div class="form-container">
+                <form id="edit-status-form">
+                    <!-- Form fields -->
+                    <input type="text" name="BookId"  class="form-control" id="BookId" value="<%= book.BookId %>" readonly>
+                    <input type="text" name="BookName" class="form-control" id="BookName" value="<%= book.BookName %>"
+                        readonly>
+                    <input type="text" name="AuthorName" class="form-control" id="AuthorName"
+                        value="<%= book.AuthorName %>" readonly>
+                    <input type="text" name="Genre" class="form-control" id="Genre" value="<%= book.Genre %>" readonly>
+                    <input type="text" name="PublishYear" class="form-control" id="PublishYear"
+                        value="<%= book.PublishYear %>" readonly>
+                    <select name="BookStatus" class="form-select" id="BookStatus" required>
+                        <option value="Available" <%=book.bookStatus==='Available' ? 'selected' : '' %>>Available
+                        </option>
+                        <option value="CheckedOut" <%=book.bookStatus==='CheckedOut' ? 'selected' : '' %>>Checked Out
+                        </option>
+                        <option value="Destroyed" <%=book.bookStatus==='Destroyed' ? 'selected' : '' %>>Destroyed
+                        </option>
+                        <option value="Lost" <%=book.bookStatus==='Lost' ? 'selected' : '' %>>Lost</option>
+                    </select>
+                    <button id="editstatus" type="submit" class="btn">Edit Status</button>
+                    <div id="statusMessage"></div> <!-- Element to display status messages -->
+                </form>
+            </div>
+        </div>
+
+        <!-- Include jQuery and Bootstrap JS -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <script>
+            $(document).ready(function () {
+              $('#edit-status-form').submit(async function (event) {
+                  event.preventDefault(); // Prevent form submission
+          
+                  const formData = new FormData(this);
+                  const data = {
+                      NewStatus: formData.get('BookStatus') // Ensure this matches the backend's expected payload
+                  };
+                  const bookId = formData.get('BookId');
+                  const statusMessage = $('#statusMessage');
+          
+                  try {
+                      const response = await fetch(`/rfs-library/books/${bookId}/edit-status`, {
+                          method: 'PUT',
+                          headers: {
+                              'Content-Type': 'application/json',
+                          },
+                          body: JSON.stringify(data), // Send the entire data object
+                      });
+          
+                      if (response.ok) {
+                          statusMessage.text('Status updated successfully.');
+                          statusMessage.css('color', '#5bc0de'); // Bootstrap info color
+                          setTimeout(() => {
+                    window.location.href = '/rfs-library/books'; // Redirect to all books page
+                }, 2000); // Wait for 2 second before redirecting
+                      } else {
+                          const error = await response.json();
+                          statusMessage.text(error.error || 'Failed to update status.');
+                          statusMessage.css('color', '#d9534f'); // Bootstrap danger color
+                      }
+                  } catch (error) {
+                      console.error('Error updating status:', error);
+                      statusMessage.text('An error occurred while updating the status.');
+                  }
+              });
+            });
+          </script>
+          
+    </body>
+
+    </html>

@@ -1,0 +1,230 @@
+<%- include('header') %>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/public/style.css"> <!-- Include your custom CSS -->
+    <style>
+        /* Base styles */
+        body {
+            background-color: #f0faff;
+            color: #333;
+            padding: 20px;
+        }
+
+        .profile-header {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .profile-card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .btn-returnbook {
+            background-color: #007bff;
+            color: white;
+            margin: 5px 0;
+            width: 100%;
+            max-width: 250px;
+            /* Max width to prevent overly wide buttons */
+        }
+
+        .btn-returnbook:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-addcomment {
+            background-color: #ffbb00;
+            color: white;
+            margin: 5px 0;
+            width: 100%;
+            max-width: 250px;
+            /* Max width to prevent overly wide buttons */
+        }
+
+        .btn-addcomment:hover {
+            background-color: #e6a800;
+        }
+
+        .btn-delete {
+            background-color: #dc3545;
+            color: white;
+            margin: 5px 0;
+            width: 100%;
+            max-width: 250px;
+            /* Max width to prevent overly wide buttons */
+        }
+
+        .btn-delete:hover {
+            background-color: #c82333;
+        }
+
+        .book-actions {
+            margin-top: 10px;
+            /* Adds space above buttons */
+        }
+
+        .btn {
+            display: block;
+            /* Ensures buttons are block-level elements for full width */
+            padding: 10px;
+            font-size: 14px;
+            /* Adjust font size */
+            font-weight: bold;
+            text-align: center;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin: 5px 0;
+            /* Adds space around buttons */
+        }
+
+        .comment-item {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .comment-item strong {
+            color: #007bff;
+        }
+    </style>
+
+</head>
+
+<body data-user-id="<%= userId %>">
+
+    <div class="profile-header">
+        <h1>User Profile</h1>
+    </div>
+
+    <div class="profile-card">
+        <h2>Welcome, <%= firstName %> <%= lastName %></h2>
+
+        <h3>Borrowed Books:</h3>
+        <% if (Array.isArray(borrowedBooks) && borrowedBooks.length === 0) { %>
+            <p>No borrowed books.</p>
+        <% } else if (Array.isArray(borrowedBooks)) { %>
+            <ul class="list-group">
+                <% borrowedBooks.forEach(function(book) { %>
+                    <li class="list-group-item">
+                        <strong>Book ID:</strong> <%= book.BookId %><br>
+                        <strong>Book Title:</strong> <%= book.BookName %><br>
+                        <strong>Book Author:</strong> <%= book.AuthorName %><br>
+                        <strong>Borrowed on:</strong> <%= new Date(book.BorrowDate).toLocaleDateString() %><br>
+                        <div class="book-actions">
+                            <button onclick="returnBook('<%= book.BookId %>')" class="btn btn-returnbook">Return Book</button>
+                        </div>
+                        <div class="book-actions">
+                            <button onclick="addComment('<%= book.BookId %>')" class="btn btn-addcomment">Add Comment</button>
+                        </div>
+                    </li>
+                <% }); %>
+            </ul>
+        <% } %>
+
+        <h3>Your Comments:</h3>
+        <% if (typeof comments !== 'undefined' && comments.length === 0) { %>
+            <p>No comments found.</p>
+        <% } else if (typeof comments !== 'undefined') { %>
+            <div class="list-group">
+                <% comments.forEach(function(comment) { %>
+                    <div class="list-group-item comment-item">
+                        <strong>Title:</strong> <%= comment.CommentTitle %><br>
+                        <strong>Comment:</strong> <%= comment.CommentText %><br>
+                        <button data-comment-id="<%= comment.CommentId %>" class="btn btn-delete">Delete Comment</button>
+                    </div>
+                <% }); %>
+            </div>
+        <% } %>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Function to handle book return
+        function returnBook(bookId) {
+    const userId = document.querySelector('body').getAttribute('data-user-id');
+    fetch(`/rfs-library/borrower/${userId}/borrowed-books/${bookId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+        .then(response => {
+            if (response.ok) {
+                window.location.href = `/rfs-library/profile/${userId}`; // Redirect to update the list of borrowed books
+            } else {
+                return response.text().then(text => alert(`Error: ${text}`));
+            }
+        })
+        .catch(error => {
+            console.error('Error returning book:', error);
+            alert('An error occurred while returning the book.');
+        });
+}
+
+
+        // Function to handle adding a comment
+        function addComment(bookId) {
+            const userId = document.querySelector('body').getAttribute('data-user-id');
+            // Redirect to the correct path with the /rfs-library/comments prefix
+            window.location.href = `/rfs-library/comments/add-comment?bookId=${bookId}&userId=${userId}`;
+        }
+
+        // Function to handle deleting a comment
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.btn-delete').forEach(button => {
+                button.addEventListener('click', function () {
+                    const commentId = this.getAttribute('data-comment-id');
+
+                    deleteComment(commentId);
+                });
+            });
+        });
+
+        function deleteComment(commentId) {
+            const userId = document.querySelector('body').getAttribute('data-user-id');
+
+            fetch(`/rfs-library/comments/${commentId}/${userId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+                .then(response => {
+                    if (response.ok) {
+                        location.reload(); // Reload the page to update the list of comments
+                    } else {
+                        return response.text().then(text => alert(`Error: ${text}`));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting comment:', error);
+                    alert('An error occurred while deleting the comment.');
+                });
+        }
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+
+</html>

@@ -1,49 +1,48 @@
 const express = require('express');
 const axios = require('axios');
 const router = express.Router();
-const { getStatusString } = require('../public/utils'); // Adjust the path as needed
 
-//this may need to go in the bookscontroller
-router.post('/books/edit-comment', async (req, res, next) => {
-    const { CommentText } = req.body; // Get the comment data from the request body
-
-    try {
-        // Implement the logic to update the comment based on your application's needs
-        console.log('Comment updated successfully');
-        res.redirect('/books'); // Redirect to the appropriate page after updating comment
-    } catch (error) {
-        console.error('Error updating comment:', error);
-        next(error); // Pass error to the next error handling middleware
-    }
-});
+const API_BASE_URL = 'http://localhost:5000/rfs-library';
 
 // Route to display the add comment form
-router.get('/add-comment', (req, res) => {
-    res.render('add-comment'); // Render the EJS template
+router.get('/comments/add-comment', (req, res) => {
+    res.render('add-comment'); // Ensure this path is correctly defined
 });
 
 // Route to handle adding a new comment
-router.post('/add-comment', async (req, res, next) => {
-    const newComment = {
-        CommentText: req.body.CommentText,
-        // Assuming additional fields such as BookId and UserId can be added if needed
-    };
+router.post('/comments/add-comment', async (req, res) => {
+    const { bookId, userId, commentTitle, commentText } = req.body;
+
+    // Validate input
+    if (!bookId || !userId || !commentTitle || !commentText) {
+        return res.status(400).json({ error: 'All fields are required.' });
+    }
 
     try {
-        const response = await axios.post('http://localhost:5000/rfs-library/comments', newComment);
-        const commentId = response.data; // Assuming the comment ID is returned
-        console.log('Comment added successfully');
-        res.redirect(`/comments/${commentId}`); // Redirect to the comment details page or another appropriate page
+        const response = await axios.post(`${API_BASE_URL}/comments/add-comment`, {
+            bookId,
+            userId,
+            commentTitle,
+            commentText
+        }, {
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (response.status === 201) {
+            res.status(201).json({ success: true, message: 'Comment added successfully' });
+        } else {
+            res.status(response.status).json({ error: response.statusText });
+        }
     } catch (error) {
-        console.error('Error adding comment:', error);
-        next(error); // Pass error to the next error handling middleware
+        console.error('Error adding comment:', error.response ? error.response.data : error.message);
+        res.status(500).json({ error: 'An error occurred while adding the comment' });
     }
 });
 
-// Route to display the latest comments (if needed)
-router.get('/latest-comments', async (req, res, next) => {
+// Route to display the latest comments
+router.get('/comments/latest-comments', async (req, res, next) => {
     try {
-        const response = await axios.get('http://localhost:5000/rfs-library/comments/latest-comments');
+        const response = await axios.get(`${API_BASE_URL}/comments/latest-comments`);
         const latestComments = response.data;
         console.log('Latest comments fetched successfully');
         res.render('latest-comments', { comments: latestComments }); // Render a view with latest comments
@@ -53,53 +52,22 @@ router.get('/latest-comments', async (req, res, next) => {
     }
 });
 
-// Route to get a specific comment by ID (if needed)
-router.get('/comments/:commentId', async (req, res, next) => {
-    const { commentId } = req.params;
+// Route to handle deleting a comment
+router.delete('/comments/:commentId/:userId', async (req, res, next) => {
+    const { commentId, userId } = req.params;
 
     try {
-        const response = await axios.get(`http://localhost:5000/rfs-library/comments/${commentId}`);
-        const comment = response.data;
-        console.log('Comment fetched successfully');
-        res.render('commentDetails', { comment }); // Render a view with comment details
+        const response = await axios.delete(`${API_BASE_URL}/comments/${commentId}/${userId}`);
+        if (response.status === 200) {
+            console.log('Comment deleted successfully');
+            res.status(200).send('Comment deleted successfully');
+        } else {
+            res.status(response.status).send(response.statusText);
+        }
     } catch (error) {
-        console.error('Error fetching comment:', error);
-        next(error); // Pass error to the next error handling middleware
-    }
-});
-
-router.get('/edit-comment/:commentId', async (req, res, next) => {
-    const { commentId } = req.params;
-
-    try {
-        const response = await axios.get(`http://localhost:5000/rfs-library/comments/${commentId}`);
-        const comment = response.data;
-        console.log('Comment fetched successfully for editing');
-        res.render('edit-comment', { comment }); // Render the EJS template with comment data
-    } catch (error) {
-        console.error('Error fetching comment for editing:', error);
-        next(error); // Pass error to the next error handling middleware
-    }
-});
-
-router.post('/edit-comment/:commentId', async (req, res, next) => {
-    const { commentId } = req.params;
-    const updatedComment = {
-        CommentText: req.body.CommentText,
-        // Add additional fields if necessary
-    };
-
-    try {
-        const response = await axios.put(`http://localhost:5000/rfs-library/comments/${commentId}`, updatedComment);
-        const success = response.data;
-        console.log('Comment updated successfully');
-        res.redirect(`/comments/${commentId}`); // Redirect to the updated comment details page or another appropriate page
-    } catch (error) {
-        console.error('Error updating comment:', error);
-        next(error); // Pass error to the next error handling middleware
+        console.error('Error deleting comment:', error);
+        res.status(500).send('Error deleting comment');
     }
 });
 
 module.exports = router;
-
-

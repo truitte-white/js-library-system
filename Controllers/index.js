@@ -1,5 +1,13 @@
-// const booksRouter = require('./bookscontroller'); 
+const booksController = require('./bookscontroller'); 
+const borrowController = require('./borrowcontroller'); 
+const commentController = require('./commentcontroller'); 
+const homeController = require('./homecontroller'); 
+const profileController = require('./profilecontroller'); 
 
-// module.exports = {
-//   booksRouter, 
-// };
+module.exports = {
+    booksController, 
+    borrowController,
+    commentController,
+    homeController,
+    profileController
+};

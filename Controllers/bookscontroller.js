@@ -1,130 +1,119 @@
 const express = require('express');
 const axios = require('axios');
 const router = express.Router();
-const { getStatusString } = require('../public/utils'); // Adjust the path as needed
+const { loggedIn } = require('../middleware/loggedInmiddleware');
+const { getStatusString } = require('../public/utils');
+const API_BASE_URL = 'http://localhost:5000/rfs-library';
 
-// Route to display the add book form
-router.get('/add-book', (req, res) => {
-  res.render('add-book'); // Render the EJS template
+router.use(loggedIn);
+
+router.get('/books/add-book', (req, res) => {
+  res.render('add-book');
+});
+
+router.get('/books/:bookId/edit-status', async (req, res) => {
+  const { bookId } = req.params;
+
+  try {
+    const response = await axios.get(`${API_BASE_URL}/books/${bookId}`);
+    const book = response.data;
+    res.render('edit-status', { book });
+  } catch (error) {
+    console.error('Error fetching book for edit status:', error);
+    next(error);
+  }
 });
 
 // Route to handle adding a new book
-router.post('/books', async (req, res, next) => {
-  const newBook = req.body; // Get the new book data from the request body
+// Inside booksController
+router.post('/books/add-book', async (req, res) => {
+  const { bookName, authorName, genre, publishYear } = req.body;
+
+  if (!bookName || !authorName || !genre || !publishYear) {
+      return res.status(400).json({ success: false, message: 'All fields are required.' });
+  }
 
   try {
-      const response = await axios.post('http://localhost:5000/rfs-library/books', newBook);
-      const result = response.data; // Assuming result contains the ID of the created book
-      console.log('Book added successfully');
-      res.redirect('/books'); // Redirect to the list of books or another appropriate page
-  } catch (error) {
-      console.error('Error adding book:', error);
-      next(error); // Pass error to the next error handling middleware
+      const response = await axios.post(`${API_BASE_URL}/books/add-book`, {
+          bookName,
+          authorName,
+          genre,
+          publishYear
+      });
+
+      if (response.status === 200) {
+          return res.json({ success: true, message: 'Book added successfully!' });
+      } else {
+          return res.status(response.status).json({ success: false, message: 'Failed to add book.' });
+      }
+  } catch (err) {
+      console.error('Error in adding book:', err);
+      return res.status(500).json({ success: false, message: 'An error occurred while adding the book.' });
   }
 });
+
+
 
 router.get('/books', async (req, res, next) => {
   try {
-    const response = await axios.get('http://localhost:5000/rfs-library/books'); 
-    console.log('books controller');
-    res.render('books', { books: response.data, getStatusString }); // Pass getStatusString to EJS
+    const response = await axios.get(`${API_BASE_URL}/books`);
+    const books = response.data;
+    const user = {
+      Email: res.locals.Email || '',
+      FirstName: res.locals.FirstName || '',
+      LastName: res.locals.LastName || '',
+      Password: res.locals.Password || ''
+    };
+    res.render('books', {
+      books,
+      getStatusString,
+      userEmail: user.email,
+      userFirstName: user.firstName,
+      userLastName: user.lastName,
+      userPassword: user.password
+    });
   } catch (error) {
     console.error('Error fetching books:', error);
-    next(error); // Pass error to the next error handling middleware
+    next(error);
   }
 });
 
-// Route to get a specific book by ID
 router.get('/books/:bookId', async (req, res, next) => {
-  const { bookId } = req.params; // Extract bookId from request parameters
+  const { bookId } = req.params;
 
   try {
-    const response = await axios.get(`http://localhost:5000/rfs-library/books/${bookId}`);
-    const book = response.data; // Assuming book contains book details
-    console.log('Book fetched successfully');
-    res.render('bookDetails', { book }); // Render a view with book details
+    const response = await axios.get(`${API_BASE_URL}/books/${bookId}`);
+    const book = response.data;
+    res.render('book-details', { book });
   } catch (error) {
     console.error('Error fetching book:', error);
-    next(error); // Pass error to the next error handling middleware
+    next(error);
   }
 });
 
-// Route to add a new book
-router.post('/books', async (req, res, next) => {
-  const newBook = req.body; // Get the new book data from the request body
+router.put('/books/:bookId/edit-status', async (req, res, next) => {
+  const { bookId } = req.params;
+  const { NewStatus } = req.body; // Ensure this matches the payload from the frontend
 
   try {
-    const response = await axios.post('http://localhost:5000/rfs-library/books', newBook);
-    const result = response.data; // Assuming result contains the ID of the created book
-    console.log('Book added successfully');
-    res.redirect('/books'); // Redirect to the list of books or another appropriate page
+    const bookIdInt = parseInt(bookId, 10);
+
+    const response = await axios.put(`${API_BASE_URL}/books/${bookId}/edit-status`, {
+      NewStatus: NewStatus // Ensure this matches what the API expects
+    });
+
+    if (response.status === 200) {
+      res.json({ message: 'Status updated successfully' });
+    } else {
+      res.status(response.status).json({ error: 'Failed to update book status' });
+    }
   } catch (error) {
-    console.error('Error adding book:', error);
-    next(error); // Pass error to the next error handling middleware
+    console.error('Error updating book status:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
-// Route to update an existing book
-router.put('/books/:bookId', async (req, res, next) => {
-  const { bookId } = req.params; // Extract bookId from request parameters
-  const updateFields = req.body; // Get the updated book data from the request body
 
-  try {
-    const response = await axios.put(`http://localhost:5000/rfs-library/books/${bookId}`, updateFields);
-    const result = response.data; // Assuming result contains some update status or confirmation
-    console.log('Book updated successfully');
-    res.redirect(`/books/${bookId}`); // Redirect to the updated book details page or another appropriate page
-  } catch (error) {
-    console.error('Error updating book:', error);
-    next(error); // Pass error to the next error handling middleware
-  }
-});
 
-// Route to display the edit book form
-router.get('/books/:bookId/edit', async (req, res, next) => {
-  const { bookId } = req.params; // Extract bookId from request parameters
-
-  try {
-      const response = await axios.get(`http://localhost:5000/rfs-library/books/${bookId}`);
-      const book = response.data; // Assuming book contains book details
-      console.log('Book fetched successfully for editing');
-      res.render('edit-book', { book }); // Render the edit-book EJS template with book details
-  } catch (error) {
-      console.error('Error fetching book for editing:', error);
-      next(error); // Pass error to the next error handling middleware
-  }
-});
-
-// Route to update an existing book
-router.post('/books/:bookId', async (req, res, next) => {
-  const { bookId } = req.params; // Extract bookId from request parameters
-  const updatedBook = req.body; // Get the updated book data from the request body
-
-  try {
-      const response = await axios.put(`http://localhost:5000/rfs-library/books/${bookId}`, updatedBook);
-      const result = response.data; // Assuming result contains some update status or confirmation
-      console.log('Book updated successfully');
-      res.redirect(`/books/${bookId}`); // Redirect to the updated book details page or another appropriate page
-  } catch (error) {
-      console.error('Error updating book:', error);
-      next(error); // Pass error to the next error handling middleware
-  }
-});
-
-// Route to handle editing a comment (if needed)
-router.post('/books/edit-comment', async (req, res, next) => {
-  const { CommentText } = req.body; // Get the comment data from the request body
-
-  try {
-      // Implement the logic to update the comment based on your application's needs
-      console.log('Comment updated successfully');
-      res.redirect('/books'); // Redirect to the appropriate page after updating comment
-  } catch (error) {
-      console.error('Error updating comment:', error);
-      next(error); // Pass error to the next error handling middleware
-  }
-});
 
 module.exports = router;
-
-

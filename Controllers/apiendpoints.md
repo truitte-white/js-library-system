@@ -1,71 +1,103 @@
 from c# api files
 UsersControllers.cs
-    Endpoint Summary
+    
     Get User by Email
 
-    HTTP Method: GET
-    URL: rfs-library/users/{email}
-    Description: Retrieves a user by their email address.
-    Response: Returns the user data if found, or a 404 Not Found if the user does not exist.
+    Endpoint: GET rfs-library/users/email/{email}
+    Description: Retrieves user details based on the provided email.
+    Parameters:
+    email (string): The email address of the user.
+    Responses:
+    200 OK with user details if found.
+    400 Bad Request if the email is null or empty.
+    404 Not Found if the user is not found.
+    500 Internal Server Error for unexpected errors.
+    
     Get User by ID
 
-    HTTP Method: GET
-    URL: rfs-library/users/id/{userId}
-    Description: Retrieves a user by their user ID.
-    Response: Returns the user data if found, or a 404 Not Found if the user does not exist.
+    Endpoint: GET rfs-library/users/id/{userId}
+    Description: Retrieves user details based on the provided user ID.
+    Parameters:
+    userId (int): The ID of the user.
+    Responses:
+    200 OK with user details if found.
+    404 Not Found if the user is not found.
+    500 Internal Server Error for unexpected errors.
+    
     Create User
 
-    HTTP Method: POST
-    URL: rfs-library/users
-    Description: Creates a new user with the data provided in the request body.
-    Request Body: JSON object representing a Users instance.
-    Response: Returns the ID of the newly created user, or a 500 Internal Server Error if the creation fails.
+    Endpoint: POST rfs-library/users
+    Description: Creates a new user with the provided details.
+    Parameters:
+    newUser (Users object): Contains user details like email and password.
+    Responses:
+    200 OK with the ID of the newly created user.
+    500 Internal Server Error for unexpected errors.
+    
     Update User
 
-    HTTP Method: PUT
-    URL: rfs-library/users/{userId}
-    Description: Updates an existing user with the data provided in the request body.
-    Request Body: JSON object representing a Users instance.
-    Response: Returns the result of the update operation, or a 500 Internal Server Error if the update fails.
-    Example Requests
-    Get User by Email
+    Endpoint: PUT rfs-library/users/{userId}
+    Description: Updates the user details for the specified user ID.
+    Parameters:
+    userId (int): The ID of the user to update.
+    updatedUser (Users object): Contains updated user details.
+    Responses:
+    200 OK with the result of the update operation.
+    400 Bad Request if the provided user ID does not match the ID in the body.
+    500 Internal Server Error for unexpected errors.
+    
+    Get Profile
 
-    Request: GET /rfs-library/users/example@example.com
-    Response: 200 OK with user details or 404 Not Found
-    Get User by ID
+    Endpoint: GET rfs-library/users/profile
+    Description: Retrieves the profile information for the currently authenticated user.
+    Authorization: Requires authentication (users must be logged in).
+    Responses:
+    200 OK with borrowed books information.
+    500 Internal Server Error for unexpected errors.
+    
+    Login
 
-    Request: GET /rfs-library/users/id/123
-    Response: 200 OK with user details or 404 Not Found
-    Create User
+    Endpoint: POST rfs-library/users/login
+    Description: Authenticates a user and generates a token.
+    Parameters:
+    loginDto (UserLoginDto object): Contains email and password.
+    Responses:
+    200 OK with a success message and token if login is successful.
+    400 Bad Request if email or password is missing.
+    401 Unauthorized if email is not found or password is incorrect.
+    500 Internal Server Error for unexpected errors.
+    
+    Signup
 
-    Request: POST /rfs-library/users
-    Request Body:
-    json
-    Copy code
-    {
-    "UserId": 0,
-    "Email": "newuser@example.com",
-    "Name": "New User",
-    // other user fields
-    }
-    Response: 200 OK with newly created user ID or 500 Internal Server Error
-    Update User
+    Endpoint: POST rfs-library/users/signup
+    Description: Registers a new user with the provided email and password.
+    Parameters:
+    signupDto (UserSignupDto object): Contains email and password.
+    Responses:
+    200 OK with a success message if signup is successful.
+    400 Bad Request if email or password is missing, or if the user already exists.
+    500 Internal Server Error for unexpected errors.
+    
+    Logout
 
-    Request: PUT /rfs-library/users/123
-    Request Body:
-    json
-    Copy code
-    {
-    "UserId": 123,
-    "Email": "updateduser@example.com",
-    "Name": "Updated User",
-    // other updated user fields
-    }
-    Response: 200 OK with update result or 500 Internal Server Error
-    Notes
-    Replace users in the URL with the appropriate route if you change the route definition in your controller.
-    Ensure that the request bodies for POST and PUT operations contain all required fields for the Users model.
-    Consider adding additional error handling or validation as needed.
+    Endpoint: POST rfs-library/users/logout
+    Description: Logs out the currently authenticated user by deleting the token.
+    Authorization: Requires authentication (users must be logged in).
+    Responses:
+    200 OK with a success message.
+    500 Internal Server Error for unexpected errors.
+    
+    Models and DTOs
+    Users: Represents a user in the system, including properties such as Email, Password, and UserId.
+    UserLoginDto: Data transfer object for user login with Email and Password.
+    UserSignupDto: Data transfer object for user signup with Email and Password.
+    
+    Key Services Used
+    IUserService: Provides methods to interact with user data (e.g., FindUserByEmail, FindUserById, CreateUser, UpdateUser).
+    IBorrowerService: Provides methods related to borrowed books (e.g., FindAllBorrowedBooks).
+    ITokenHelper: Helps in generating and validating authentication tokens.
+    ILogger: Used for logging errors and informational messages.
+    These endpoints cover user management, authentication, and session management, providing a robust set of functionalities for a user-based API in a library system.
 
 HomeController.cs
     Endpoint Summary
@@ -153,150 +185,188 @@ BorrowerController.cs
     The UpdateBookStatus and UpdateBorrowerBook methods in your service class should handle the specific logic for updating the book and borrower records.
 
 CommentsController.cs
-    Endpoint Summary
-    Create Comment
-
-    HTTP Method: POST
-    URL: rfs-library/comments
-    Description: Creates a new comment on a book.
-    Request Body: JSON object representing a BooksComments instance.
-    Response: Returns the ID of the newly created comment, or a 500 Internal Server Error if creation fails.
-    Update Comment
-
-    HTTP Method: PUT
-    URL: rfs-library/comments/{commentId}
-    Description: Updates an existing comment by its ID.
-    Request Body: JSON object representing the updated BooksComments instance.
-    Response: Returns a boolean indicating whether the update was successful, or a 500 Internal Server Error if the update fails.
-    Delete Comment
-
-    HTTP Method: DELETE
-    URL: rfs-library/comments/{commentId}/{currentUserId}
-    Description: Deletes a comment by its ID. The currentUserId is used to ensure that only the comment owner can delete it.
-    Response: Returns a boolean indicating whether the deletion was successful, or a 500 Internal Server Error if the deletion fails.
-    Get Comment by ID
-
-    HTTP Method: GET
-    URL: rfs-library/comments/{commentId}
-    Description: Retrieves a specific comment by its ID.
-    Response: Returns the BooksComments object if found, or a 404 Not Found if the comment does not exist.
-    Get Latest Comments
-
-    HTTP Method: GET
-    URL: rfs-library/comments/latest-comments
-    Description: Retrieves the 5 most recent comments.
-    Response: Returns a list of the latest comments.
-    Example Requests
-    Create Comment
-
-    Request: POST /rfs-library/comments
-    Request Body:
+    Add Comment
+    Route: POST /rfs-library/comments/add-comment
+    Description: Adds a new comment.
+    Payload:
     json
     Copy code
     {
-    "BookId": 1,
-    "UserId": 123,
-    "CommentText": "Great book!",
-    "CreatedDate": "2024-07-26T00:00:00Z"
+        "commentId": int,         // Optional, usually auto-generated
+        "bookId": int,
+        "userId": int,
+        "commentTitle": string,
+        "commentText": string
     }
-    Response: 200 OK with the ID of the newly created comment.
-    Update Comment
-
-    Request: PUT /rfs-library/comments/1
-    Request Body:
+    Response:
+    201 Created with the ID of the created comment.
+    400 Bad Request if the input is invalid.
+    500 Internal Server Error on failure.
+    2. Update Comment
+    Route: PUT /rfs-library/comments/{commentId}
+    Description: Updates an existing comment by commentId.
+    Payload:
     json
     Copy code
     {
-    "BookId": 1,
-    "UserId": 123,
-    "CommentText": "Updated comment text",
-    "CreatedDate": "2024-07-26T00:00:00Z"
+        "commentId": int,         // Must match the `commentId` in the URL
+        "bookId": int,
+        "userId": int,
+        "commentTitle": string,
+        "commentText": string
     }
-    Response: 200 OK with a boolean indicating success.
-    Delete Comment
-
-    Request: DELETE /rfs-library/comments/1/123
-    Response: 200 OK with a boolean indicating success.
-    Get Comment by ID
-
-    Request: GET /rfs-library/comments/1
-    Response: 200 OK with the comment details or 404 Not Found if the comment does not exist.
-    Get Latest Comments
-
-    Request: GET /rfs-library/comments/latest-comments
-    Response: 200 OK with the list of the 5 most recent comments.
-    Notes
-    Ensure your ICommentService interface and its implementation properly handle the operations for creating, updating, deleting, and retrieving comments.
-    The BooksComments model should include all necessary properties such as BookId, UserId, CommentText, and CreatedDate.
-    Consider adding additional endpoints for functionalities like searching for comments or retrieving all comments for a specific book if needed.
-
+    Response:
+    204 No Content on success.
+    400 Bad Request if commentId in the URL and body don't match, or input is invalid.
+    404 Not Found if the comment doesn't exist.
+    500 Internal Server Error on failure.
+    3. Delete Comment
+    Route: DELETE /rfs-library/comments/{commentId}/{userId}
+    Description: Deletes a comment by commentId if the userId matches.
+    Response:
+    204 No Content on success.
+    404 Not Found if the comment doesn't exist.
+    500 Internal Server Error on failure.
+    4. Get Comment by ID
+    Route: GET /rfs-library/comments/{commentId}
+    Description: Fetches a comment by commentId.
+    Response:
+    200 OK with the comment data.
+    404 Not Found if the comment doesn't exist.
+    500 Internal Server Error on failure.
+    5. Get Latest Comments
+    Route: GET /rfs-library/comments/latest-comments
+    Description: Fetches the latest comments.
+    Response:
+    200 OK with a list of the latest comments.
+    500 Internal Server Error on failure.
+    6. Get Comments by User ID
+    Route: GET /rfs-library/comments/user/{userId}
+    Description: Fetches comments made by a specific user.
+    Response:
+    200 OK with a list of comments.
+    500 Internal Server Error on failure.
 BooksController.cs
-    Endpoint Summary
-    Get All Books
-
-    HTTP Method: GET
-    URL: rfs-library/books
-    Description: Retrieves a list of all books.
-    Response: Returns a list of Books objects.
-    Get Book by ID
-
-    HTTP Method: GET
-    URL: rfs-library/books/{bookId}
-    Description: Retrieves a specific book by its ID.
-    Response: Returns the Books object if found, or a 404 Not Found if the book does not exist.
-    Add Book
-
-    HTTP Method: POST
-    URL: rfs-library/books
-    Description: Creates a new book entry.
-    Request Body: JSON object representing a Books instance.
-    Response: Returns the ID of the newly created book or a 500 Internal Server Error if the creation fails.
-    Update Book
-
-    HTTP Method: PUT
-    URL: rfs-library/books/{bookId}
-    Description: Updates an existing book entry by its ID. The request body should contain the fields to be updated.
-    Request Body: JSON object representing the fields to be updated.
-    Response: Returns the result of the update operation or a 500 Internal Server Error if the update fails.
-    Example Requests
-    Get All Books
-
-    Request: GET /rfs-library/books
-    Response: 200 OK with a list of all books.
-    Get Book by ID
-
-    Request: GET /rfs-library/books/1
-    Response: 200 OK with the book details or 404 Not Found if the book with ID 1 does not exist.
-    Add Book
-
-    Request: POST /rfs-library/books
-    Request Body:
+    1. Get All Books
+    Route: GET /rfs-library/books
+    Description: Fetches a list of all books.
+    Response:
+    Returns a list of Books objects.
+    Status Code: 200 OK with a JSON array of book objects.
+    Example response:
+    json
+    Copy code
+    [
+        {
+            "bookId": 1,
+            "bookName": "Book Title 1",
+            "authorName": "Author 1",
+            "genre": "Genre 1",
+            "publishYear": 2020,
+            "status": "Available"
+        },
+        ...
+    ]
+    2. Get Book By ID
+    Route: GET /rfs-library/books/{bookId}
+    Parameters:
+    bookId (int): The ID of the book to fetch.
+    Description: Fetches the details of a specific book by its ID.
+    Response:
+    Returns a Books object.
+    Status Code: 200 OK with a JSON object of the book details.
+    Example response:
     json
     Copy code
     {
-    "BookId": 0, // Auto-generated or set to default value
-    "BookName": "Example Book",
-    "AuthorName": "Author Name",
-    "Genre": "Genre",
-    "PublishYear": 2024,
-    "Status": "Available" // Or any other default status
+        "bookId": 1,
+        "bookName": "Book Title 1",
+        "authorName": "Author 1",
+        "genre": "Genre 1",
+        "publishYear": 2020,
+        "status": "Available"
     }
-    Response: 200 OK with the ID of the newly created book.
-    Update Book
-
-    Request: PUT /rfs-library/books/1
-    Request Body:
+    3. Add a Book
+    Route: POST /rfs-library/books/add-book
+    Payload:
+    bookName (string): The name of the book.
+    authorName (string): The name of the author.
+    genre (string): The genre of the book.
+    publishYear (int): The year the book was published.
+    status (enum): The status of the book (e.g., "Available", "CheckedOut").
+    Description: Adds a new book to the library.
+    Request Body Example:
     json
     Copy code
     {
-    "BookName": "Updated Book Name",
-    "AuthorName": "Updated Author Name",
-    "Genre": "Updated Genre",
-    "PublishYear": 2025
+        "bookName": "New Book Title",
+        "authorName": "New Author",
+        "genre": "Fiction",
+        "publishYear": 2023,
+        "status": "Available"
     }
-    Response: 200 OK with the result of the update operation.
-    Notes
-    Error Handling: The controller methods handle exceptions and return a 500 Internal Server Error with a generic message. You may want to provide more detailed error handling or validation responses depending on your needs.
-    Update Book Method: The UpdateBook method uses object updateFields, which means you need to properly handle and deserialize the update fields in your service implementation. It might be beneficial to use a specific update model or DTO to ensure proper type safety and validation.
-    Service Layer: Ensure that the IBookService interface and its implementation handle the necessary logic for book operations (GetAllBooks, FindBookById, CreateBook, UpdateBook).
-    Feel free to add additional endpoints as needed, such as searching for books, filtering by genre, or other relevant functionalities.
+    Response:
+    Status Code: 200 OK with the ID of the newly created book.
+    4. Update a Book
+    Route: PUT /rfs-library/books/{bookId}
+    Parameters:
+    bookId (int): The ID of the book to update.
+    Payload:
+    A Books object containing the fields to be updated.
+    Description: Updates the details of an existing book.
+    Request Body Example:
+    json
+    Copy code
+    {
+        "bookName": "Updated Book Title",
+        "authorName": "Updated Author",
+        "genre": "Updated Genre",
+        "publishYear": 2022,
+        "status": "CheckedOut"
+    }
+    Response:
+    Status Code: 200 OK with the ID of the updated book.
+    5. Update Book Status
+    Route: PUT /rfs-library/books/{bookId}/edit-status
+    Parameters:
+    bookId (int): The ID of the book whose status is to be updated.
+    Payload:
+    NewStatus (string): The new status of the book (must match the enum BookStatus).
+    Description: Updates the status of an existing book.
+    Request Body Example:
+    json
+    Copy code
+    {
+        "NewStatus": "CheckedOut"
+    }
+    Response:
+    Status Code: 200 OK with a success message.
+    Data Types and Models
+    Books Model
+    The Books model might look like this:
+
+    csharp
+    Copy code
+    public class Books
+    {
+        public int BookId { get; set; }
+        public string BookName { get; set; }
+        public string AuthorName { get; set; }
+        public string Genre { get; set; }
+        public int PublishYear { get; set; }
+        public BookStatus Status { get; set; }
+
+        public enum BookStatus
+        {
+            Available,
+            CheckedOut,
+            Reserved,
+            Lost
+        }
+    }
+    Summary of Required Routes
+    GET /rfs-library/books: Fetch all books.
+    GET /rfs-library/books/{bookId}: Fetch a specific book by ID.
+    POST /rfs-library/books/add-book: Add a new book.
+    PUT /rfs-library/books/{bookId}: Update an existing book.
+    PUT /rfs-library/books/{bookId}/edit-status: Update the status of an existing book.
